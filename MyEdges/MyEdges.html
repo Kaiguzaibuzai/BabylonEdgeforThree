@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <!-- <meta http-equiv="X-UA-Compatible" content="IE=edge"> -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body onload="main()">
+
+    <script id="VertexShader" type="x-shader/x-vertex">
+        precision highp float;
+        attribute vec4 updown;
+        varying vec4 vPosition;
+        uniform float width;
+        uniform float aspectRatio; 
+        uniform mat4 meshModelMatrix; 
+        void main() {
+
+
+            mat4 modelMatrix1 = meshModelMatrix * modelMatrix ;
+            
+            mat4 MvpMatrix = projectionMatrix * viewMatrix * modelMatrix1 ;
+            vec4 viewPosition = MvpMatrix * vec4(position,1.0);
+            vec4 viewPositionNext = MvpMatrix * vec4(updown.xyz,1.0);
+            vec2 currentScreen = viewPosition.xy/viewPosition.w;
+            vec2 nextScreen = viewPositionNext.xy/viewPosition.w;
+            currentScreen.x *= aspectRatio;
+            nextScreen.x *= aspectRatio;
+
+            vec2 dir = normalize(nextScreen - currentScreen);
+            vec2 normalDir = vec2(-dir.y, dir.x);
+            normalDir *= width / 10.0;
+            normalDir.x /= aspectRatio;
+            vec4 offset = vec4(normalDir * updown.w,0.0,0.0);
+            
+            gl_Position = viewPosition + offset;
+            
+           
+        }   
+    </script>
+
+    <script id="FragmentShader" type="x-shader/x-vertex">
+        uniform vec4 color;
+        varying vec4 vPosition;
+        void main() {
+            //gl_FragColor = vec4(vPosition.y+0.5,vPosition.x+0.5,vPosition.z+0.5,1.0);
+            gl_FragColor = color;
+        }
+    </script>
+
+
+    <script src="../lib/three.js"></script>
+    <script src="../lib/GLTFLoader.js"></script>
+    <script src="../lib/DRACOLoader.js"></script>
+    <script src="../lib/OrbitControls.js"></script>
+    <script src="../lib/stats.min.js"></script>
+    <script src="../lib/MyEdgesUtil.js"></script>
+    <script src="Constants.js"></script>
+    <script src="InitScene.js"></script>
+    <script src="MyEdges.js"></script>
+    <!-- <script src="EdgesRendering.js"></script> -->
+</body>
+
+</html>
